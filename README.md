@@ -1,100 +1,75 @@
 # Rider API
 
-A simple Django REST Framework API for managing and retrieving rider information.
+A Django REST Framework API for retrieving and filtering rider information.
 
-## Features
+## Technologies Used
 
-* Get a list of riders
-* Search riders by name
-* Filter riders by vehicle number
-* Pagination support
-* Returns total rider count
+- Python
+- Django
+- Django REST Framework
+- SQLite
 
 ## Rider Model
 
-The Rider model contains the following fields:
+The `Rider` model stores rider personal, payout, document, account, and delivery-related information.
 
-* Name
-* Email
-* Phone
-* Vehicle Number
-* Created At
+### Fields
+
+| Field | Type | Description |
+|---|---|---|
+| id | Integer | Automatically generated rider ID |
+| name | String | Rider name |
+| phone | String | Rider phone number |
+| address | Text | Rider address |
+| rider_type | Enum | Salary-based or Per-order |
+| assigned_store | String | Store assigned to the rider |
+| assigned_zone | String | Zone assigned to the rider |
+| payout_method | Enum | UPI or Bank Account |
+| upi_id | String | Rider UPI ID |
+| bank_account_number | String | Bank account number |
+| ifsc_code | String | Bank IFSC code |
+| account_holder_name | String | Bank account holder name |
+| driving_license_number | String | Driving license number |
+| driving_license_document | URL | Driving license document URL |
+| aadhaar_number | String | Aadhaar number |
+| aadhaar_document | URL | Aadhaar document URL |
+| vehicle_rc_number | String | Vehicle RC number |
+| vehicle_rc_document | URL | Vehicle RC document URL |
+| account_status | Enum | Active or Inactive |
+| activate_immediately | Boolean | Whether the rider should be activated immediately |
+| online_status | Enum | Online, Offline, On Break, or On Delivery |
+| current_order | String/Null | Current order assigned to the rider |
+| cash_in_hand | Decimal | Current cash held by the rider |
+| has_undeposited_cash | Boolean | Indicates whether the rider has undeposited cash |
+| created_at | DateTime | Automatically generated creation date and time |
+
+## Choice Fields
+
+### Rider Type
+
+- Salary-based
+- Per-order
+
+### Payout Method
+
+- UPI
+- Bank Account
+
+### Account Status
+
+- Active
+- Inactive
+
+### Online Status
+
+- Online
+- Offline
+- On Break
+- On Delivery
 
 ## API Endpoint
 
 ### Get Riders
 
-```text
+```http
 GET /rider/
-```
-
-### Example Request
-
-```text
-/rider/?page=1&page_size=10
-```
-
-### Search by Name
-
-```text
-/rider/?search=John
-```
-
-### Filter by Vehicle Number
-
-```text
-/rider/?vehicle_number=KA01
-```
-
-## Example Response
-
-```json
-{
-    "status": true,
-    "data": [],
-    "page": 1,
-    "page_size": 10,
-    "total_count": 0,
-    "message": "Riders retrieved successfully"
-}
-```
-
-## Technologies Used
-
-* Python
-* Django
-* Django REST Framework
-
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/Anjum-aforro/rider.git
-```
-
-Go to the project directory:
-
-```bash
-cd rider
-```
-
-Create and activate a virtual environment, then install the required dependencies.
-
-Run migrations:
-
-```bash
-python manage.py migrate
-```
-
-Start the server:
-
-```bash
-python manage.py runserver
-```
-
-The API will be available at:
-
-```text
-http://127.0.0.1:8000/rider/
-```
