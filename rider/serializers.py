@@ -4,4 +4,14 @@ from .models import Rider
 class RiderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rider
-        fields = "__all__"
+        fields = [
+            "name",
+            "rider_type",
+             "phone",
+            "assigned_store",
+            "assigned_zone",
+            "online_status",
+            "current_order",
+            "cash_in_hand",
+            "account_status"
+        ]
