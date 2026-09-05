@@ -8,10 +8,22 @@ class RiderSerializer(serializers.ModelSerializer):
     GET APIs are intentionally not implemented here.
     """
 
+    # Explicit file upload fields
+    driving_license_document = serializers.FileField(
+        required=True
+    )
+
+    aadhaar_document = serializers.FileField(
+        required=True
+    )
+
+    vehicle_rc_document = serializers.FileField(
+        required=True
+    )
+
     class Meta:
         model = Rider
 
-        # Only fields belonging to the Rider API specification.
         fields = [
             "id",
             "name",
@@ -77,19 +89,10 @@ class RiderSerializer(serializers.ModelSerializer):
             "driving_license_number": {
                 "required": True,
             },
-            "driving_license_document": {
-                "required": True,
-            },
             "aadhaar_number": {
                 "required": True,
             },
-            "aadhaar_document": {
-                "required": True,
-            },
             "vehicle_rc_number": {
-                "required": True,
-            },
-            "vehicle_rc_document": {
                 "required": True,
             },
             "account_status": {
@@ -161,7 +164,7 @@ class RiderSerializer(serializers.ModelSerializer):
     # -------------------------
     def validate(self, attrs):
 
-        # Existing values are required for PATCH validation.
+        # Existing values are used for PATCH.
         rider_type = attrs.get(
             "rider_type",
             getattr(self.instance, "rider_type", None),
