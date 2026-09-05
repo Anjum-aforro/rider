@@ -241,3 +241,42 @@ class RiderDeposit(models.Model):
 
     def __str__(self):
         return f"{self.rider.name} - ₹{self.amount_received}"
+
+
+
+class RiderPayout(models.Model):
+
+    class PaymentMode(models.TextChoices):
+        UPI = "UPI", "UPI"
+        BANK_TRANSFER = "Bank Transfer", "Bank Transfer"
+        CASH = "Cash", "Cash"
+
+    rider = models.ForeignKey(
+        Rider,
+        on_delete=models.CASCADE,
+        related_name="payouts"
+    )
+
+    amount_paid = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    payment_mode = models.CharField(
+        max_length=20,
+        choices=PaymentMode.choices
+    )
+
+    payout_date = models.DateField()
+
+    notes = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.rider.name} - ₹{self.amount_paid}"
