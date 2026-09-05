@@ -208,6 +208,34 @@ class Rider(models.Model):
         return f"{self.name} - {self.phone}"
 
 
+
+class RiderDeposit(models.Model):
+    rider = models.ForeignKey(
+        Rider,
+        on_delete=models.CASCADE,
+        related_name="deposits"
+    )
+
+    amount_received = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    deposit_date = models.DateField()
+
+    notes = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.rider.name} - ₹{self.amount_received}"
+
+
 class RiderPayout(models.Model):
 
     class PaymentMode(models.TextChoices):
