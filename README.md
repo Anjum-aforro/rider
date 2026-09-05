@@ -2,7 +2,7 @@
 
 A Django REST Framework API for retrieving and filtering rider information.
 
-## Technologies Used
+## Technologies Used>>>>
 
 - Python
 - Django
