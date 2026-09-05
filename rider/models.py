@@ -24,7 +24,9 @@ class Rider(models.Model):
     # -------------------------
     # Basic information
     # -------------------------
-    name = models.CharField(max_length=100)
+    name = models.CharField(
+        max_length=100
+    )
 
     email = models.EmailField(
         blank=True,
@@ -118,21 +120,15 @@ class Rider(models.Model):
     )
 
     driving_license_document = models.FileField(
-        upload_to="riders/driving_license/",
-        blank=True,
-        null=True
+        upload_to="riders/driving_license/"
     )
 
     aadhaar_number = models.CharField(
-        max_length=12,
-        null=True,
-        blank=True
+        max_length=12
     )
 
     aadhaar_document = models.FileField(
-        upload_to="riders/aadhaar/",
-        blank=True,
-        null=True
+        upload_to="riders/aadhaar/"
     )
 
     vehicle_rc_number = models.CharField(
@@ -140,9 +136,7 @@ class Rider(models.Model):
     )
 
     vehicle_rc_document = models.FileField(
-        upload_to="riders/vehicle_rc/",
-        blank=True,
-        null=True
+        upload_to="riders/vehicle_rc/"
     )
 
     # -------------------------
@@ -193,7 +187,6 @@ class Rider(models.Model):
     # -------------------------
     # Vehicle
     # -------------------------
-    # Kept from your existing model.
     vehicle_number = models.CharField(
         max_length=50,
         blank=True,
@@ -213,35 +206,6 @@ class Rider(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.phone}"
-
-
-class RiderDeposit(models.Model):
-
-    rider = models.ForeignKey(
-        Rider,
-        on_delete=models.CASCADE,
-        related_name="deposits"
-    )
-
-    amount_received = models.DecimalField(
-        max_digits=10,
-        decimal_places=2
-    )
-
-    deposit_date = models.DateField()
-
-    notes = models.TextField(
-        blank=True,
-        null=True
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    def __str__(self):
-        return f"{self.rider.name} - ₹{self.amount_received}"
-
 
 
 class RiderPayout(models.Model):

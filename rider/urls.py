@@ -1,12 +1,20 @@
 from django.urls import path
-from .views import RiderListView, RiderDetailView, RiderDepositView
+
+from .views import RiderListView, RiderDetailView
 
 
 urlpatterns = [
-    path("rider/", RiderListView.as_view()),
-    path("rider/<int:id>/", RiderDetailView.as_view()),
+    # Rider POST
     path(
-        "rider/<int:id>/deposit/",
-        RiderDepositView.as_view(),
+        "rider/",
+        RiderListView.as_view(),
+        name="rider-create",
+    ),
+
+    # Rider PATCH + DELETE
+    path(
+        "rider/<int:id>/",
+        RiderDetailView.as_view(),
+        name="rider-detail",
     ),
 ]
