@@ -14,6 +14,14 @@ class Rider(models.Model):
     class AccountStatus(models.TextChoices):
         ACTIVE = "Active", "Active"
         INACTIVE = "Inactive", "Inactive"
+        BLOCKED = "Blocked", "Blocked"
+        PENDING = "Pending", "Pending"
+        SUSPEND = "Suspend", "Suspend"
+        REJECTED = "Rejected", "Rejected"
+
+    class DocumentVerificationStatus(models.TextChoices):
+        PENDING = "Pending", "Pending"
+        VERIFIED = "Verified", "Verified"
 
     class OnlineStatus(models.TextChoices):
         ONLINE = "Online", "Online"
@@ -123,12 +131,24 @@ class Rider(models.Model):
         upload_to="riders/driving_license/"
     )
 
+    driving_license_verification_status = models.CharField(
+        max_length=10,
+        choices=DocumentVerificationStatus.choices,
+        default=DocumentVerificationStatus.PENDING
+    )
+
     aadhaar_number = models.CharField(
         max_length=12
     )
 
     aadhaar_document = models.FileField(
         upload_to="riders/aadhaar/"
+    )
+
+    aadhaar_verification_status = models.CharField(
+        max_length=10,
+        choices=DocumentVerificationStatus.choices,
+        default=DocumentVerificationStatus.PENDING
     )
 
     vehicle_rc_number = models.CharField(
@@ -139,13 +159,19 @@ class Rider(models.Model):
         upload_to="riders/vehicle_rc/"
     )
 
+    vehicle_rc_verification_status = models.CharField(
+        max_length=10,
+        choices=DocumentVerificationStatus.choices,
+        default=DocumentVerificationStatus.PENDING
+    )
+
     # -------------------------
     # Account status
     # -------------------------
     account_status = models.CharField(
         max_length=10,
         choices=AccountStatus.choices,
-        default=AccountStatus.INACTIVE
+        default=AccountStatus.PENDING
     )
 
     is_deleted = models.BooleanField(
@@ -206,7 +232,6 @@ class Rider(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.phone}"
-
 
 
 class RiderDeposit(models.Model):
