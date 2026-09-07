@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Rider
-
+from .models import Rider,RiderRate
 
 class RiderSerializer(serializers.ModelSerializer):
     """
@@ -334,3 +333,20 @@ class RiderListSerializer(serializers.ModelSerializer):
             "cash_in_hand",
             "account_status",
         ]
+
+class RiderRateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RiderRate
+        fields = [
+            "id",
+            "distance_range",
+            "base_payout",
+            "per_km_rate",
+            "rider_type",
+            "zone",
+            "vehicle",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]

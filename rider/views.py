@@ -7,8 +7,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-from .models import Rider
-from .serializers import RiderSerializer, RiderListSerializer
+from .models import Rider,RiderRate
+from .serializers import RiderSerializer, RiderListSerializer ,RiderRateSerializer
 
 
 class RiderListView(APIView):
@@ -301,3 +301,80 @@ class RiderFilterOptionsView(APIView):
                 ]
             }
         })
+
+
+class RiderRateListView(APIView):
+
+    @extend_schema(
+        request=RiderRateSerializer,
+        responses={201: RiderRateSerializer},
+    )
+    def post(self, request):
+        serializer = RiderRateSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": False,
+                    "errors": serializer.errors,
+                    "message": "Rider rate creation failed",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        rider_rate = serializer.save()
+
+        return Response(
+            {
+                "status": True,
+                "data": RiderRateSerializer(rider_rate).data,
+                "message": "Rider rate created successfully",
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class RiderRateDetailView(APIView):
+
+    @extend_schema(
+        request=RiderRateSerializer,
+        responses={200: RiderRateSerializer},
+    )
+    def patch(self, request, id):
+        try:
+            rider_rate = RiderRate.objects.get(id=id)
+        except RiderRate.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "message": "Rider rate not found",
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = RiderRateSerializer(
+            rider_rate,
+            data=request.data,
+            partial=True,
+        )
+
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": False,
+                    "errors": serializer.errors,
+                    "message": "Rider rate update failed",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        rider_rate = serializer.save()
+
+        return Response(
+            {
+                "status": True,
+                "data": RiderRateSerializer(rider_rate).data,
+                "message": "Rider rate updated successfully",
+            },
+            status=status.HTTP_200_OK,
+        )

@@ -299,3 +299,47 @@ class RiderPayout(models.Model):
 
     def __str__(self):
         return f"{self.rider.name} - ₹{self.amount_paid}"
+
+class RiderRate(models.Model):
+
+    class RiderType(models.TextChoices):
+        SALARY = "Salary", "Salary"
+        PER_ORDER = "Per-order", "Per-order"
+
+    distance_range = models.CharField(
+        max_length=50
+    )
+
+    base_payout = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    per_km_rate = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    rider_type = models.CharField(
+        max_length=20,
+        choices=RiderType.choices
+    )
+
+    zone = models.CharField(
+        max_length=100
+    )
+
+    vehicle = models.CharField(
+        max_length=50
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+        return f"{self.distance_range} - ₹{self.per_km_rate}/km"
