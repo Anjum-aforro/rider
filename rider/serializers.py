@@ -95,7 +95,7 @@ class RiderSerializer(serializers.ModelSerializer):
                 "required": True,
             },
             "account_status": {
-                "required": True,
+                "required": False,
             },
             "activate_immediately": {
                 "required": True,
@@ -331,6 +331,7 @@ class RiderListSerializer(serializers.ModelSerializer):
             "online_status",
             "current_order",
             "cash_in_hand",
+<<<<<<< HEAD
             "account_status",
         ]
 
@@ -350,3 +351,6 @@ class RiderRateSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+=======
+        ]
+>>>>>>> 7e3973c (Make account status optional for rider API)
