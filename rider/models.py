@@ -171,9 +171,11 @@ class Rider(models.Model):
     account_status = models.CharField(
         max_length=10,
         choices=AccountStatus.choices,
-        default=AccountStatus.PENDING
+        default=AccountStatus.PENDING,
+        blank=True
     )
 
+    
     is_deleted = models.BooleanField(
         default=False
     )
