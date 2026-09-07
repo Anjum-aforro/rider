@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Rider,RiderRate
+from .models import Rider, RiderRate
+
 
 class RiderSerializer(serializers.ModelSerializer):
     """
@@ -318,9 +319,12 @@ class RiderSerializer(serializers.ModelSerializer):
 
         return attrs
 
+
 class RiderListSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Rider
+
         fields = [
             "id",
             "name",
@@ -331,14 +335,15 @@ class RiderListSerializer(serializers.ModelSerializer):
             "online_status",
             "current_order",
             "cash_in_hand",
-<<<<<<< HEAD
             "account_status",
         ]
+
 
 class RiderRateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RiderRate
+
         fields = [
             "id",
             "distance_range",
@@ -350,7 +355,9 @@ class RiderRateSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
-=======
+
+        read_only_fields = [
+            "id",
+            "created_at",
+            "updated_at",
         ]
->>>>>>> 7e3973c (Make account status optional for rider API)
