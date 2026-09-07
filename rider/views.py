@@ -270,3 +270,34 @@ class RiderDetailView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+class RiderFilterOptionsView(APIView):
+
+    def get(self, request):
+        return Response({
+            "status": True,
+            "data": {
+                "rider_type": [
+                    "Salary-based",
+                    "Per-order"
+                ],
+                "assigned_store": [
+                     "BTM Layout Stage 2",
+                     "Bellandur Outer Ring",
+                     "HSR Layout Sector 2",
+                     "Indiranagar Darkstore",
+                     "Jayanagar 4th Block",
+                     "Koramangala Hub",
+                     "Malleswaram Central",
+                     "Whitefield Depot"
+                ],
+                "account_status": [
+                    "Active",
+                    "Inactive",
+                    "Block",
+                    "Pending",
+                    "Suspend",
+                    "Rejected"
+                ]
+            }
+        })

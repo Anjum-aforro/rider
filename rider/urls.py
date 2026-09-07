@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import RiderListView, RiderDetailView, RiderStatsView
+from .views import RiderListView, RiderDetailView, RiderStatsView, RiderFilterOptionsView
 
 
 urlpatterns = [
@@ -19,4 +19,7 @@ urlpatterns = [
         RiderStatsView.as_view(),
         name="rider-stats",
     ),
+    path("rider/filter-options/", 
+         RiderFilterOptionsView.as_view(),
+           name="rider-filter-options"),
 ]
