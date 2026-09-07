@@ -1,44 +1,91 @@
 from django.db import models
 
+
 class Rider(models.Model):
 
-    RIDER_TYPE_CHOICES = [
-        ("Salary-based", "Salary-based"),
-        ("Per-order", "Per-order"),
-    ]
+    class RiderType(models.TextChoices):
+        SALARY = "Salary-based", "Salary-based"
+        PER_ORDER = "Per-order", "Per-order"
 
-    PAYOUT_METHOD_CHOICES = [
-        ("UPI", "UPI"),
-        ("Bank Account", "Bank Account"),
-    ]
+    class PayoutMethod(models.TextChoices):
+        UPI = "UPI", "UPI"
+        BANK = "Bank Account", "Bank Account"
 
-    ACCOUNT_STATUS_CHOICES = [
-        ("Active", "Active"),
-        ("Inactive", "Inactive"),
-    ]
+    class AccountStatus(models.TextChoices):
+        ACTIVE = "Active", "Active"
+        INACTIVE = "Inactive", "Inactive"
 
-    ONLINE_STATUS_CHOICES = [
-        ("Online", "Online"),
-        ("Offline", "Offline"),
-        ("On Break", "On Break"),
-        ("On Delivery", "On Delivery"),
-    ]
+    class OnlineStatus(models.TextChoices):
+        ONLINE = "Online", "Online"
+        OFFLINE = "Offline", "Offline"
+        ON_BREAK = "On Break", "On Break"
+        ON_DELIVERY = "On Delivery", "On Delivery"
 
-    name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=20)
-    address = models.TextField()
-
-    rider_type = models.CharField(
-        max_length=20,
-        choices=RIDER_TYPE_CHOICES
+    # -------------------------
+    # Basic information
+    # -------------------------
+    name = models.CharField(
+        max_length=100
     )
 
-    assigned_store = models.CharField(max_length=100)
-    assigned_zone = models.CharField(max_length=100)
+    email = models.EmailField(
+        blank=True,
+        null=True
+    )
 
+    phone = models.CharField(
+        max_length=10,
+        unique=True
+    )
+
+    address = models.TextField()
+
+    # -------------------------
+    # Rider type
+    # -------------------------
+    rider_type = models.CharField(
+        max_length=20,
+        choices=RiderType.choices
+    )
+
+    base_salary = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    per_order_rate = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    per_km_rate = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    # -------------------------
+    # Store / Zone assignment
+    # -------------------------
+    assigned_store = models.CharField(
+        max_length=100
+    )
+
+    assigned_zone = models.CharField(
+        max_length=100
+    )
+
+    # -------------------------
+    # Payout information
+    # -------------------------
     payout_method = models.CharField(
         max_length=20,
-        choices=PAYOUT_METHOD_CHOICES
+        choices=PayoutMethod.choices
     )
 
     upi_id = models.CharField(
@@ -65,26 +112,57 @@ class Rider(models.Model):
         null=True
     )
 
-    driving_license_number = models.CharField(max_length=50)
-    driving_license_document = models.URLField()
-
-    aadhaar_number = models.CharField(max_length=20)
-    aadhaar_document = models.URLField()
-
-    vehicle_rc_number = models.CharField(max_length=50)
-    vehicle_rc_document = models.URLField()
-
-    account_status = models.CharField(
-        max_length=20,
-        choices=ACCOUNT_STATUS_CHOICES
+    # -------------------------
+    # Documents
+    # -------------------------
+    driving_license_number = models.CharField(
+        max_length=50
     )
 
-    activate_immediately = models.BooleanField()
+    driving_license_document = models.FileField(
+        upload_to="riders/driving_license/"
+    )
 
+    aadhaar_number = models.CharField(
+        max_length=12
+    )
+
+    aadhaar_document = models.FileField(
+        upload_to="riders/aadhaar/"
+    )
+
+    vehicle_rc_number = models.CharField(
+        max_length=50
+    )
+
+    vehicle_rc_document = models.FileField(
+        upload_to="riders/vehicle_rc/"
+    )
+
+    # -------------------------
+    # Account status
+    # -------------------------
+    account_status = models.CharField(
+        max_length=10,
+        choices=AccountStatus.choices,
+        default=AccountStatus.INACTIVE
+    )
+
+    is_deleted = models.BooleanField(
+        default=False
+    )
+
+    activate_immediately = models.BooleanField(
+        default=False
+    )
+
+    # -------------------------
+    # Live / monitoring state
+    # -------------------------
     online_status = models.CharField(
         max_length=20,
-        choices=ONLINE_STATUS_CHOICES,
-        default="Offline"
+        choices=OnlineStatus.choices,
+        default=OnlineStatus.OFFLINE
     )
 
     current_order = models.CharField(
@@ -93,12 +171,104 @@ class Rider(models.Model):
         null=True
     )
 
+    # -------------------------
+    # COD / cash
+    # -------------------------
     cash_in_hand = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         default=0
     )
 
-    has_undeposited_cash = models.BooleanField(default=False)
+    has_undeposited_cash = models.BooleanField(
+        default=False
+    )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    # -------------------------
+    # Vehicle
+    # -------------------------
+    vehicle_number = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True
+    )
+
+    # -------------------------
+    # Timestamps
+    # -------------------------
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+        return f"{self.name} - {self.phone}"
+
+
+
+class RiderDeposit(models.Model):
+    rider = models.ForeignKey(
+        Rider,
+        on_delete=models.CASCADE,
+        related_name="deposits"
+    )
+
+    amount_received = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    deposit_date = models.DateField()
+
+    notes = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.rider.name} - ₹{self.amount_received}"
+
+
+class RiderPayout(models.Model):
+
+    class PaymentMode(models.TextChoices):
+        UPI = "UPI", "UPI"
+        BANK_TRANSFER = "Bank Transfer", "Bank Transfer"
+        CASH = "Cash", "Cash"
+
+    rider = models.ForeignKey(
+        Rider,
+        on_delete=models.CASCADE,
+        related_name="payouts"
+    )
+
+    amount_paid = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    payment_mode = models.CharField(
+        max_length=20,
+        choices=PaymentMode.choices
+    )
+
+    payout_date = models.DateField()
+
+    notes = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.rider.name} - ₹{self.amount_paid}"
