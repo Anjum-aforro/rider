@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rider', '0007_rider_aadhaar_verification_status_and_more'),
+    ('rider', '0001_initial'),
     ]
 
     operations = [
