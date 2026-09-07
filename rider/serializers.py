@@ -318,3 +318,19 @@ class RiderSerializer(serializers.ModelSerializer):
                 })
 
         return attrs
+
+class RiderListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rider
+        fields = [
+            "id",
+            "name",
+            "phone",
+            "rider_type",
+            "assigned_store",
+            "assigned_zone",
+            "online_status",
+            "current_order",
+            "cash_in_hand",
+            "account_status",
+        ]

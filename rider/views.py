@@ -5,10 +5,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from .models import Rider
-from .serializers import RiderSerializer
+from .serializers import RiderSerializer, RiderListSerializer
 
 
 class RiderListView(APIView):
@@ -22,16 +22,31 @@ class RiderListView(APIView):
 
     parser_classes = [MultiPartParser, FormParser]
 
+    @extend_schema(
+    parameters=[
+        OpenApiParameter("search", str, OpenApiParameter.QUERY),
+        OpenApiParameter("rider_type", str, OpenApiParameter.QUERY),
+        OpenApiParameter("assigned_store", str, OpenApiParameter.QUERY),
+        OpenApiParameter("online_status", str, OpenApiParameter.QUERY),
+        OpenApiParameter("account_status", str, OpenApiParameter.QUERY),
+        OpenApiParameter("cash_filter", str, OpenApiParameter.QUERY),
+        OpenApiParameter("page", int, OpenApiParameter.QUERY),
+        OpenApiParameter("page_size", int, OpenApiParameter.QUERY),
+    ]
+)
+
     def get(self, request):
         riders = Rider.objects.filter(is_deleted=False)
+        
 
         search = request.GET.get("search")
 
         if search:
             riders = riders.filter(
                 Q(name__icontains=search)
+                | Q(phone__icontains=search)
+                | Q(vehicle_number__icontains=search)
                 | Q(assigned_store__icontains=search)
-                | Q(current_order__icontains=search)
             )
 
         rider_type = request.GET.get("rider_type")
@@ -60,11 +75,10 @@ class RiderListView(APIView):
 
         cash_filter = request.GET.get("cash_filter")
 
-        if cash_filter == "above_10":
-            riders = riders.filter(cash_in_hand__gt=10)
-
-        elif cash_filter == "below_10":
-            riders = riders.filter(cash_in_hand__lte=10)
+        if cash_filter == "above_0":
+            riders = riders.filter(has_undeposited_cash=True)
+        elif cash_filter == "zero":
+            riders = riders.filter(has_undeposited_cash=False)
 
         page = int(request.GET.get("page", 1))
         page_size = int(request.GET.get("page_size", 10))
@@ -76,7 +90,7 @@ class RiderListView(APIView):
 
         riders = riders[start:end]
 
-        serializer = RiderSerializer(riders, many=True)
+        serializer = RiderListSerializer(riders, many=True)
 
         return Response(
             {
@@ -119,6 +133,35 @@ class RiderListView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
+class RiderStatsView(APIView):
+
+    def get(self, request):
+        riders = Rider.objects.filter(is_deleted=False)
+
+        total_fleet = riders.filter(account_status=Rider.AccountStatus.ACTIVE).count()
+
+        active_online = riders.filter(
+            online_status=Rider.OnlineStatus.ONLINE
+        ).count()
+
+        on_delivery = riders.filter(
+            online_status=Rider.OnlineStatus.ON_DELIVERY
+        ).count()
+
+        total_cash_in_hand = sum(
+            rider.cash_in_hand for rider in riders
+        )
+
+        return Response({
+            "status": True,
+             "data": {
+                "total_fleet": f"{total_fleet} Riders",
+                "active_online": f"{active_online} online now",
+                "on_delivery": f"{on_delivery} orders active",
+                "total_cash_in_hand": f"₹{total_cash_in_hand:,.0f}",
+            },
+            "message": "Rider stats retrieved successfully",
+        })
 
 class RiderDetailView(APIView):
     """
