@@ -339,7 +339,7 @@ class RiderListSerializer(serializers.ModelSerializer):
         ]
 
 
-class RiderRateSerializer(serializers.ModelSerializer):
+class LegacyRiderRateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RiderRate
@@ -361,3 +361,4 @@ class RiderRateSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+        

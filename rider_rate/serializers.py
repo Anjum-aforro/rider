@@ -6,6 +6,7 @@ class RiderRateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RiderRate
+
         fields = [
             "id",
             "distance_from",
@@ -17,6 +18,12 @@ class RiderRateSerializer(serializers.ModelSerializer):
             "vehicle",
             "rate_type",
             "status",
+            "created_at",
+            "updated_at",
+        ]
+
+        read_only_fields = [
+            "id",
             "created_at",
             "updated_at",
         ]

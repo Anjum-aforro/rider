@@ -47,12 +47,27 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
+
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Rider API",
     "DESCRIPTION": "API documentation for the Rider project.",
     "VERSION": "1.0.0",
+    "COMPONENT_SPLIT_REQUEST": True,
+
+    "ENUM_NAME_OVERRIDES": {
+        "RiderTypeEnum": [
+            ("Salary-based", "Salary-based"),
+            ("Per-order", "Per-order"),
+        ],
+        "RiderRateTypeEnum": [
+            ("Salary", "Salary"),
+            ("Per-order", "Per-order"),
+        ],
+    },
 }
 
 

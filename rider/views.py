@@ -7,8 +7,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-from .models import Rider,RiderRate
-from .serializers import RiderSerializer, RiderListSerializer ,RiderRateSerializer
+from .models import Rider, RiderRate
+from .serializers import (
+    RiderSerializer,
+    RiderListSerializer,
+    LegacyRiderRateSerializer,
+)
 
 
 class RiderListView(APIView):
@@ -27,7 +31,8 @@ class RiderListView(APIView):
             OpenApiParameter("cash_filter", str, OpenApiParameter.QUERY),
             OpenApiParameter("page", int, OpenApiParameter.QUERY),
             OpenApiParameter("page_size", int, OpenApiParameter.QUERY),
-        ]
+        ],
+        responses={200: RiderListSerializer(many=True)},
     )
     def get(self, request):
         riders = Rider.objects.filter(is_deleted=False)
@@ -129,6 +134,9 @@ class RiderListView(APIView):
 
 class RiderStatsView(APIView):
 
+    @extend_schema(
+        responses={200: dict},
+    )
     def get(self, request):
         riders = Rider.objects.filter(is_deleted=False)
 
@@ -166,6 +174,9 @@ class RiderDetailView(APIView):
 
     parser_classes = [MultiPartParser, FormParser]
 
+    @extend_schema(
+        responses={200: RiderSerializer},
+    )
     def get(self, request, id):
         try:
             rider = Rider.objects.get(
@@ -237,6 +248,9 @@ class RiderDetailView(APIView):
             status=status.HTTP_200_OK,
         )
 
+    @extend_schema(
+        responses={200: dict},
+    )
     def delete(self, request, id):
         try:
             rider = Rider.objects.get(
@@ -271,46 +285,52 @@ class RiderDetailView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 class RiderFilterOptionsView(APIView):
 
+    @extend_schema(
+        responses={200: dict},
+    )
     def get(self, request):
-        return Response({
-            "status": True,
-            "data": {
-                "rider_type": [
-                    "Salary-based",
-                    "Per-order"
-                ],
-                "assigned_store": [
-                     "BTM Layout Stage 2",
-                     "Bellandur Outer Ring",
-                     "HSR Layout Sector 2",
-                     "Indiranagar Darkstore",
-                     "Jayanagar 4th Block",
-                     "Koramangala Hub",
-                     "Malleswaram Central",
-                     "Whitefield Depot"
-                ],
-                "account_status": [
-                    "Active",
-                    "Inactive",
-                    "Block",
-                    "Pending",
-                    "Suspend",
-                    "Rejected"
-                ]
+        return Response(
+            {
+                "status": True,
+                "data": {
+                    "rider_type": [
+                        "Salary-based",
+                        "Per-order",
+                    ],
+                    "assigned_store": [
+                        "BTM Layout Stage 2",
+                        "Bellandur Outer Ring",
+                        "HSR Layout Sector 2",
+                        "Indiranagar Darkstore",
+                        "Jayanagar 4th Block",
+                        "Koramangala Hub",
+                        "Malleswaram Central",
+                        "Whitefield Depot",
+                    ],
+                    "account_status": [
+                        "Active",
+                        "Inactive",
+                        "Block",
+                        "Pending",
+                        "Suspend",
+                        "Rejected",
+                    ],
+                },
             }
-        })
+        )
 
 
 class RiderRateListView(APIView):
 
     @extend_schema(
-        request=RiderRateSerializer,
-        responses={201: RiderRateSerializer},
+        request=LegacyRiderRateSerializer,
+        responses={201: LegacyRiderRateSerializer},
     )
     def post(self, request):
-        serializer = RiderRateSerializer(data=request.data)
+        serializer = LegacyRiderRateSerializer(data=request.data)
 
         if not serializer.is_valid():
             return Response(
@@ -327,7 +347,7 @@ class RiderRateListView(APIView):
         return Response(
             {
                 "status": True,
-                "data": RiderRateSerializer(rider_rate).data,
+                "data": LegacyRiderRateSerializer(rider_rate).data,
                 "message": "Rider rate created successfully",
             },
             status=status.HTTP_201_CREATED,
@@ -337,8 +357,8 @@ class RiderRateListView(APIView):
 class RiderRateDetailView(APIView):
 
     @extend_schema(
-        request=RiderRateSerializer,
-        responses={200: RiderRateSerializer},
+        request=LegacyRiderRateSerializer,
+        responses={200: LegacyRiderRateSerializer},
     )
     def patch(self, request, id):
         try:
@@ -352,7 +372,7 @@ class RiderRateDetailView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        serializer = RiderRateSerializer(
+        serializer = LegacyRiderRateSerializer(
             rider_rate,
             data=request.data,
             partial=True,
@@ -373,7 +393,7 @@ class RiderRateDetailView(APIView):
         return Response(
             {
                 "status": True,
-                "data": RiderRateSerializer(rider_rate).data,
+                "data": LegacyRiderRateSerializer(rider_rate).data,
                 "message": "Rider rate updated successfully",
             },
             status=status.HTTP_200_OK,
