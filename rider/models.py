@@ -315,6 +315,16 @@ class RiderRate(models.Model):
         max_length=50
     )
 
+    distance_from = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    distance_to = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
     base_payout = models.DecimalField(
         max_digits=10,
         decimal_places=2
@@ -330,12 +340,25 @@ class RiderRate(models.Model):
         choices=RiderType.choices
     )
 
+    rate_type = models.CharField(
+        max_length=50
+    )
+
     zone = models.CharField(
         max_length=100
     )
 
     vehicle = models.CharField(
         max_length=50
+    )
+
+    status = models.CharField(
+        max_length=20,
+        default="Active"
+    )
+
+    is_deleted = models.BooleanField(
+        default=False
     )
 
     created_at = models.DateTimeField(
