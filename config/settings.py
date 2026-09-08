@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rider",
     "drf_spectacular",
-    "rider_rate",
+
 ]
 
 

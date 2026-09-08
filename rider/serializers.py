@@ -368,4 +368,31 @@ class LegacyRiderRateSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        
+
+class RiderRateGetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RiderRate
+
+        fields = [
+            "id",
+            "distance_range",
+            "distance_from",
+            "distance_to",
+            "base_payout",
+            "per_km_rate",
+            "rider_type",
+            "zone",
+            "vehicle",
+            "rate_type",
+            "status",
+            "is_deleted",
+            "created_at",
+            "updated_at",
+        ]
+
+        read_only_fields = [
+            "id",
+            "created_at",
+            "updated_at",
+        ]

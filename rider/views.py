@@ -1,9 +1,13 @@
 from django.db.models import Q
 
+from django_filters import rest_framework as filters
+from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import mixins, status, viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.filters import SearchFilter
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
@@ -12,6 +16,7 @@ from .serializers import (
     RiderSerializer,
     RiderListSerializer,
     LegacyRiderRateSerializer,
+    RiderRateGetSerializer,
 )
 
 
@@ -144,7 +149,6 @@ class RiderStatsView(APIView):
             account_status=Rider.AccountStatus.ACTIVE
         ).count()
 
-
         total_cash_in_hand = sum(
             rider.cash_in_hand for rider in riders
         )
@@ -191,24 +195,24 @@ class RiderDetailView(APIView):
                 "data": {
                     "profile_information": {
                         "id": serializer.data["id"],
-                          "name": serializer.data["name"],
-                          "phone": serializer.data["phone"],
-                          "address": serializer.data["address"],
-                          "rider_type": serializer.data["rider_type"],
-                          "assigned_store": serializer.data["assigned_store"],
-                          "assigned_zone": serializer.data["assigned_zone"],
-                          "vehicle_number": serializer.data["vehicle_number"],
-                          },
+                        "name": serializer.data["name"],
+                        "phone": serializer.data["phone"],
+                        "address": serializer.data["address"],
+                        "rider_type": serializer.data["rider_type"],
+                        "assigned_store": serializer.data["assigned_store"],
+                        "assigned_zone": serializer.data["assigned_zone"],
+                        "vehicle_number": serializer.data["vehicle_number"],
+                    },
                     "payment_information": {
-                         "base_salary": serializer.data["base_salary"],
-                         "per_order_rate": serializer.data["per_order_rate"],
-                         "per_km_rate": serializer.data["per_km_rate"],
-                         "payout_method": serializer.data["payout_method"],
-                         "upi_id": serializer.data["upi_id"],
-                         "bank_account_number": serializer.data["bank_account_number"],
-                         "ifsc_code": serializer.data["ifsc_code"],
-                         "account_holder_name": serializer.data["account_holder_name"],
-                         },
+                        "base_salary": serializer.data["base_salary"],
+                        "per_order_rate": serializer.data["per_order_rate"],
+                        "per_km_rate": serializer.data["per_km_rate"],
+                        "payout_method": serializer.data["payout_method"],
+                        "upi_id": serializer.data["upi_id"],
+                        "bank_account_number": serializer.data["bank_account_number"],
+                        "ifsc_code": serializer.data["ifsc_code"],
+                        "account_holder_name": serializer.data["account_holder_name"],
+                    },
                     "documents": {
                         "driving_license_number": serializer.data["driving_license_number"],
                         "driving_license_document": serializer.data["driving_license_document"],
@@ -219,7 +223,7 @@ class RiderDetailView(APIView):
                         "vehicle_rc_number": serializer.data["vehicle_rc_number"],
                         "vehicle_rc_document": serializer.data["vehicle_rc_document"],
                         "vehicle_rc_verification_status": serializer.data["vehicle_rc_verification_status"],
-                        },
+                    },
                     "rider_status": {
                         "account_status": serializer.data["account_status"],
                         "is_deleted": serializer.data["is_deleted"],
@@ -228,14 +232,15 @@ class RiderDetailView(APIView):
                         "current_order": serializer.data["current_order"],
                         "cash_in_hand": serializer.data["cash_in_hand"],
                         "has_undeposited_cash": serializer.data["has_undeposited_cash"],
-                        },
+                    },
                     "timestamps": {
                         "created_at": serializer.data["created_at"],
                         "updated_at": serializer.data["updated_at"],
-                        },
-                    "message": "Rider retrieved successfully",
+                    },
+                },
+                "message": "Rider retrieved successfully",
             }
-       } )
+        )
 
     @extend_schema(
         request=RiderSerializer,
@@ -432,4 +437,85 @@ class RiderRateDetailView(APIView):
                 "message": "Rider rate updated successfully",
             },
             status=status.HTTP_200_OK,
+        )
+
+
+class RiderRateFilter(filters.FilterSet):
+
+    min_distance = filters.NumberFilter(
+        field_name="distance_from",
+        lookup_expr="gte"
+    )
+
+    max_distance = filters.NumberFilter(
+        field_name="distance_to",
+        lookup_expr="lte"
+    )
+
+    class Meta:
+        model = RiderRate
+
+        fields = [
+            "rider_type",
+            "zone",
+            "vehicle",
+            "status",
+            "rate_type",
+            "min_distance",
+            "max_distance",
+        ]
+
+
+class RiderRateViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+
+    serializer_class = RiderRateGetSerializer
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+    ]
+
+    filterset_class = RiderRateFilter
+
+    search_fields = [
+        "rider_type",
+        "zone",
+        "vehicle",
+        "rate_type",
+    ]
+
+    http_method_names = [
+        "get",
+        "delete",
+        "head",
+        "options",
+    ]
+
+    def get_queryset(self):
+        return RiderRate.objects.filter(
+            is_deleted=False
+        ).order_by("-created_at")
+
+    def destroy(self, request, *args, **kwargs):
+        rider_rate = self.get_object()
+
+        rider_rate.is_deleted = True
+
+        rider_rate.save(
+            update_fields=[
+                "is_deleted",
+                "updated_at",
+            ]
+        )
+
+        return Response(
+            {
+                "message": "Rider rate deleted successfully."
+            },
+            status=status.HTTP_200_OK
         )
