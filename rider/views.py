@@ -441,7 +441,7 @@ class RiderRateDetailView(APIView):
 
 
 class RiderRateFilter(filters.FilterSet):
-
+    
     min_distance = filters.NumberFilter(
         field_name="distance_from",
         lookup_expr="gte"
@@ -452,6 +452,7 @@ class RiderRateFilter(filters.FilterSet):
         lookup_expr="lte"
     )
 
+
     class Meta:
         model = RiderRate
 
@@ -461,8 +462,6 @@ class RiderRateFilter(filters.FilterSet):
             "vehicle",
             "status",
             "rate_type",
-            "min_distance",
-            "max_distance",
         ]
 
 

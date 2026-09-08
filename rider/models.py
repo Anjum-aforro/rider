@@ -22,7 +22,6 @@ class Rider(models.Model):
     class DocumentVerificationStatus(models.TextChoices):
         PENDING = "Pending", "Pending"
         VERIFIED = "Verified", "Verified"
-        MARK_AS_VERIFIED = "Mark as Verified", "Mark as Verified"
         EXPIRED = "Expired", "Expired"
         INVALID_DOCUMENT = "Invalid Document", "Invalid Document"
         DOCUMENT_NOT_CLEAR = "Document not clear", "Document not clear"
@@ -311,19 +310,18 @@ class RiderRate(models.Model):
         SALARY = "Salary", "Salary"
         PER_ORDER = "Per-order", "Per-order"
 
-    distance_range = models.CharField(
-        max_length=50
-    )
-
     distance_from = models.DecimalField(
-        max_digits=10,
-        decimal_places=2
+    max_digits=10,
+    decimal_places=2,
+    default=0
     )
 
     distance_to = models.DecimalField(
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=1
     )
+
 
     base_payout = models.DecimalField(
         max_digits=10,
@@ -370,4 +368,4 @@ class RiderRate(models.Model):
     )
 
     def __str__(self):
-        return f"{self.distance_range} - ₹{self.per_km_rate}/km"
+        return f"{self.distance_from} to {self.distance_to} - ₹{self.per_km_rate}/km"

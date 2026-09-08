@@ -353,15 +353,16 @@ class LegacyRiderRateSerializer(serializers.ModelSerializer):
 
         fields = [
             "id",
-            "distance_range",
+            "distance_from",
+            "distance_to",
             "base_payout",
             "per_km_rate",
             "rider_type",
             "zone",
             "vehicle",
             "created_at",
-            "updated_at",
-        ]
+            "updated_at"
+]
 
         read_only_fields = [
             "id",
@@ -376,7 +377,6 @@ class RiderRateGetSerializer(serializers.ModelSerializer):
 
         fields = [
             "id",
-            "distance_range",
             "distance_from",
             "distance_to",
             "base_payout",
