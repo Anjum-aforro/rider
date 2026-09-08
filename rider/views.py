@@ -144,13 +144,6 @@ class RiderStatsView(APIView):
             account_status=Rider.AccountStatus.ACTIVE
         ).count()
 
-        active_online = riders.filter(
-            online_status=Rider.OnlineStatus.ONLINE
-        ).count()
-
-        on_delivery = riders.filter(
-            online_status=Rider.OnlineStatus.ON_DELIVERY
-        ).count()
 
         total_cash_in_hand = sum(
             rider.cash_in_hand for rider in riders
@@ -161,8 +154,6 @@ class RiderStatsView(APIView):
                 "status": True,
                 "data": {
                     "total_fleet": f"{total_fleet} Riders",
-                    "active_online": f"{active_online} online now",
-                    "on_delivery": f"{on_delivery} orders active",
                     "total_cash_in_hand": f"₹{total_cash_in_hand:,.0f}",
                 },
                 "message": "Rider stats retrieved successfully",
@@ -197,10 +188,54 @@ class RiderDetailView(APIView):
         return Response(
             {
                 "status": True,
-                "data": serializer.data,
-                "message": "Rider retrieved successfully",
+                "data": {
+                    "profile_information": {
+                        "id": serializer.data["id"],
+                          "name": serializer.data["name"],
+                          "phone": serializer.data["phone"],
+                          "address": serializer.data["address"],
+                          "rider_type": serializer.data["rider_type"],
+                          "assigned_store": serializer.data["assigned_store"],
+                          "assigned_zone": serializer.data["assigned_zone"],
+                          "vehicle_number": serializer.data["vehicle_number"],
+                          },
+                    "payment_information": {
+                         "base_salary": serializer.data["base_salary"],
+                         "per_order_rate": serializer.data["per_order_rate"],
+                         "per_km_rate": serializer.data["per_km_rate"],
+                         "payout_method": serializer.data["payout_method"],
+                         "upi_id": serializer.data["upi_id"],
+                         "bank_account_number": serializer.data["bank_account_number"],
+                         "ifsc_code": serializer.data["ifsc_code"],
+                         "account_holder_name": serializer.data["account_holder_name"],
+                         },
+                    "documents": {
+                        "driving_license_number": serializer.data["driving_license_number"],
+                        "driving_license_document": serializer.data["driving_license_document"],
+                        "driving_license_verification_status": serializer.data["driving_license_verification_status"],
+                        "aadhaar_number": serializer.data["aadhaar_number"],
+                        "aadhaar_document": serializer.data["aadhaar_document"],
+                        "aadhaar_verification_status": serializer.data["aadhaar_verification_status"],
+                        "vehicle_rc_number": serializer.data["vehicle_rc_number"],
+                        "vehicle_rc_document": serializer.data["vehicle_rc_document"],
+                        "vehicle_rc_verification_status": serializer.data["vehicle_rc_verification_status"],
+                        },
+                    "rider_status": {
+                        "account_status": serializer.data["account_status"],
+                        "is_deleted": serializer.data["is_deleted"],
+                        "activate_immediately": serializer.data["activate_immediately"],
+                        "online_status": serializer.data["online_status"],
+                        "current_order": serializer.data["current_order"],
+                        "cash_in_hand": serializer.data["cash_in_hand"],
+                        "has_undeposited_cash": serializer.data["has_undeposited_cash"],
+                        },
+                    "timestamps": {
+                        "created_at": serializer.data["created_at"],
+                        "updated_at": serializer.data["updated_at"],
+                        },
+                    "message": "Rider retrieved successfully",
             }
-        )
+       } )
 
     @extend_schema(
         request=RiderSerializer,
