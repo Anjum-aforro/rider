@@ -33,7 +33,7 @@ class RiderRateFilter(filters.FilterSet):
         ]
 
 
-class RiderRateViewSet(viewsets.ModelViewSet):
+class RiderRateViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = RiderRateSerializer
 
@@ -53,8 +53,6 @@ class RiderRateViewSet(viewsets.ModelViewSet):
 
     http_method_names = [
         "get",
-        "post",
-        "patch",
         "delete",
         "head",
         "options",
