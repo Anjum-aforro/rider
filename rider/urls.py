@@ -9,6 +9,8 @@ from .views import (
     RiderRateListView,
     RiderRateDetailView,
     RiderRateViewSet,
+    RiderMonitoringView,
+    RiderRateFilterView
 )
 
 
@@ -60,4 +62,12 @@ urlpatterns = [
         "api/",
         include(router.urls),
     ),
+    path(
+    "riders/<int:rider_id>/monitoring/",
+    RiderMonitoringView.as_view()
+    ),
+
+    path("rider-rate-filters/", 
+         RiderRateFilterView.as_view(), 
+         name="rider-rate-filters"),
 ]

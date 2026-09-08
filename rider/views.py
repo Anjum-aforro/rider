@@ -17,6 +17,7 @@ from .serializers import (
     RiderListSerializer,
     LegacyRiderRateSerializer,
     RiderRateGetSerializer,
+    RiderRateSerializer
 )
 
 
@@ -147,7 +148,6 @@ class RiderStatsView(APIView):
 
         total_fleet = total_fleet = riders.count()
         
-
         total_cash_in_hand = sum(
             rider.cash_in_hand for rider in riders
         )
@@ -517,3 +517,65 @@ class RiderRateViewSet(
             },
             status=status.HTTP_200_OK
         )
+
+class RiderMonitoringView(APIView):
+
+    def get(self, request, rider_id):
+        try:
+            rider = Rider.objects.get(
+                id=rider_id,
+                is_deleted=False
+            )
+        except Rider.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "message": "Rider not found"
+                },
+                status=404
+            )
+
+        return Response(
+            {
+                "status": True,
+                "data": {
+                    "rider_status": rider.online_status,
+                    "last_location": rider.assigned_zone
+                },
+                "message": "Rider monitoring details retrieved successfully"
+            }
+        )
+# rider rate filters 
+class RiderRateFilterView(APIView):
+
+    def get(self, request):
+
+        rates = RiderRate.objects.filter(is_deleted=False)
+
+        rider_types = list(
+            rates.values_list("rider_type", flat=True).distinct()
+        )
+
+        zones = list(
+            rates.values_list("zone", flat=True).distinct()
+        )
+
+        vehicles = list(
+            rates.values_list("vehicle", flat=True).distinct()
+        )
+
+        statuses = list(
+            rates.values_list("status", flat=True).distinct()
+        )
+
+        return Response({
+            "status": True,
+            "data": {
+                
+                "rider_types": ["All Rider Types"] + rider_types,
+                "zones": ["All Zones"] + zones,
+                "vehicles": ["All Vehicles"] + vehicles,
+                "statuses": ["All statuses"] + statuses,
+            },
+            "message": "Rider rate filters retrieved successfully"
+        })
