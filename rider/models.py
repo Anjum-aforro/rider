@@ -22,6 +22,11 @@ class Rider(models.Model):
     class DocumentVerificationStatus(models.TextChoices):
         PENDING = "Pending", "Pending"
         VERIFIED = "Verified", "Verified"
+        MARK_AS_VERIFIED = "Mark as Verified", "Mark as Verified"
+        EXPIRED = "Expired", "Expired"
+        INVALID_DOCUMENT = "Invalid Document", "Invalid Document"
+        DOCUMENT_NOT_CLEAR = "Document not clear", "Document not clear"
+        DETAILS_MISMATCH = "Details Mismatch", "Details Mismatch"
 
     class OnlineStatus(models.TextChoices):
         ONLINE = "Online", "Online"
@@ -132,7 +137,7 @@ class Rider(models.Model):
     )
 
     driving_license_verification_status = models.CharField(
-        max_length=10,
+        max_length=30,
         choices=DocumentVerificationStatus.choices,
         default=DocumentVerificationStatus.PENDING
     )
@@ -146,7 +151,7 @@ class Rider(models.Model):
     )
 
     aadhaar_verification_status = models.CharField(
-        max_length=10,
+        max_length=30,
         choices=DocumentVerificationStatus.choices,
         default=DocumentVerificationStatus.PENDING
     )
@@ -160,7 +165,7 @@ class Rider(models.Model):
     )
 
     vehicle_rc_verification_status = models.CharField(
-        max_length=10,
+        max_length=30,
         choices=DocumentVerificationStatus.choices,
         default=DocumentVerificationStatus.PENDING
     )
