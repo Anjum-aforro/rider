@@ -145,9 +145,8 @@ class RiderStatsView(APIView):
     def get(self, request):
         riders = Rider.objects.filter(is_deleted=False)
 
-        total_fleet = riders.filter(
-            account_status=Rider.AccountStatus.ACTIVE
-        ).count()
+        total_fleet = total_fleet = riders.count()
+        
 
         total_cash_in_hand = sum(
             rider.cash_in_hand for rider in riders
