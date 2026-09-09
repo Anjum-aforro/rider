@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     RiderListView,
     RiderDetailView,
+    RiderQuickStatsView,
     RiderStatsView,
     RiderFilterOptionsView,
     RiderRateListView,
@@ -70,4 +71,10 @@ urlpatterns = [
     path("rider-rate-filters/", 
          RiderRateFilterView.as_view(), 
          name="rider-rate-filters"),
+
+    path(
+    "rider/<int:rider_id>/quick-stats/",
+    RiderQuickStatsView.as_view(),
+    name="rider-quick-stats"
+),
 ]
