@@ -6,10 +6,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import mixins, status, viewsets
-from rest_framework.parsers import MultiPartParser, FormParser
+
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.filters import SearchFilter
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+
 
 from .models import Rider, RiderRate
 from .serializers import (
@@ -23,7 +25,7 @@ from .serializers import (
 
 class RiderListView(APIView):
 
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes =[JSONParser]
 
     @extend_schema(
         parameters=[
@@ -41,7 +43,7 @@ class RiderListView(APIView):
         responses={200: RiderListSerializer(many=True)},
     )
     def get(self, request):
-        riders = Rider.objects.filter(is_deleted=False)
+        riders = Rider.objects.filter(is_deleted=False).order_by("-created_at")
 
         search = request.GET.get("search")
 
@@ -146,8 +148,12 @@ class RiderStatsView(APIView):
     def get(self, request):
         riders = Rider.objects.filter(is_deleted=False)
 
-        total_fleet = total_fleet = riders.count()
-        
+        total_fleet = riders.count()
+
+        active_online = riders.filter(online_status=True).count()
+
+        on_delivery = riders.filter(current_order__isnull=False).count()
+
         total_cash_in_hand = sum(
             rider.cash_in_hand for rider in riders
         )
@@ -156,7 +162,9 @@ class RiderStatsView(APIView):
             {
                 "status": True,
                 "data": {
-                    "total_fleet": f"{total_fleet} Riders",
+                    "total_fleet": f"{total_fleet}",
+                    "active_online": f"{active_online}",
+                    "on_delivery": f"{on_delivery}",
                     "total_cash_in_hand": f"₹{total_cash_in_hand:,.0f}",
                 },
                 "message": "Rider stats retrieved successfully",

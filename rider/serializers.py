@@ -1,5 +1,7 @@
+import re
 from rest_framework import serializers
 from .models import Rider, RiderRate
+
 
 
 class RiderSerializer(serializers.ModelSerializer):
@@ -170,6 +172,49 @@ class RiderSerializer(serializers.ModelSerializer):
     # COMPLETE RIDER VALIDATION
     # -------------------------
     def validate(self, attrs):
+        if self.instance is None:
+            driving_license_number = attrs.get("driving_license_number")
+            vehicle_number = attrs.get("vehicle_number")
+
+            if Rider.objects.filter(
+                driving_license_number=driving_license_number,
+                is_deleted=False
+            ).exists():
+                raise serializers.ValidationError({
+                    "driving_license_number":
+                        "Driving licence number already exists."
+                })
+
+            if Rider.objects.filter(
+                vehicle_number=vehicle_number,
+                is_deleted=False
+            ).exists():
+                raise serializers.ValidationError({
+                    "vehicle_number":
+                        "Vehicle number already exists."
+                })
+                driving_license_number = attrs.get("driving_license_number")
+        vehicle_number = attrs.get("vehicle_number")
+
+        if driving_license_number:
+            if not re.fullmatch(
+                r"[A-Za-z]{2}-[0-9]{14}",
+                driving_license_number
+            ):
+                raise serializers.ValidationError({
+                    "driving_license_number":
+                        "Invalid driving licence number format."
+                })
+
+        if vehicle_number:
+            if not re.fullmatch(
+                r"[A-Z]{2}-[0-9]{2}-[A-Z]{2}-[0-9]{4}",
+                vehicle_number.upper()
+            ):
+                raise serializers.ValidationError({
+                    "vehicle_number":
+                        "Invalid vehicle number format. Example: KA-01-AB-1235."
+                })
 
         # Existing values are used for PATCH.
         rider_type = attrs.get(
