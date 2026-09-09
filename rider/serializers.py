@@ -462,3 +462,37 @@ class RiderRateSerializer(serializers.ModelSerializer):
             "vehicle",
             "status",
         ]
+
+from .models import RiderCurrentAssignment, RiderLoginLogoutLog, RiderAttendance
+
+class RiderCurrentAssignmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RiderCurrentAssignment
+        fields = [
+            "order_id",
+            "status",
+            "pickup",
+            "drop",
+            "customer",
+            "order_value"
+        ]
+
+
+class RiderLoginLogoutLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RiderLoginLogoutLog
+        fields = [
+            "time",
+            "status"
+        ]
+
+
+class RiderAttendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RiderAttendance
+        fields = [
+            "month",
+            "present",
+            "absent",
+            "total_days"
+        ]

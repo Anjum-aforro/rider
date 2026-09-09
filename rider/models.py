@@ -246,6 +246,45 @@ class Rider(models.Model):
     def __str__(self):
         return f"{self.name} - {self.phone}"
 
+class RiderCurrentAssignment(models.Model):
+    rider = models.OneToOneField(
+        Rider,
+        on_delete=models.CASCADE,
+        related_name="current_assignment"
+    )
+    order_id = models.CharField(max_length=100)
+    status = models.CharField(max_length=50)
+    pickup = models.CharField(max_length=200, blank=True, null=True)
+    drop = models.CharField(max_length=200, blank=True, null=True)
+    customer = models.CharField(max_length=200, blank=True, null=True)
+    order_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return f"{self.rider.name} - {self.order_id}"
+
+class RiderLoginLogoutLog(models.Model):
+    rider = models.ForeignKey(Rider, on_delete=models.CASCADE, related_name="login_logout_logs")
+    time = models.DateTimeField()
+    status = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"{self.rider.name} - {self.status}"
+
+
+class RiderAttendance(models.Model):
+    rider = models.ForeignKey(Rider, on_delete=models.CASCADE, related_name="attendance")
+    month = models.CharField(max_length=20)
+    present = models.PositiveIntegerField(default=0)
+    absent = models.PositiveIntegerField(default=0)
+    total_days = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.rider.name} - {self.month}"
 
 class RiderDeposit(models.Model):
     rider = models.ForeignKey(

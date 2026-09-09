@@ -560,6 +560,9 @@ class RiderRateViewSet(
 
 class RiderMonitoringView(APIView):
 
+    @extend_schema(
+        responses={200: dict},
+    )
     def get(self, request, rider_id):
         try:
             rider = Rider.objects.get(
@@ -572,18 +575,54 @@ class RiderMonitoringView(APIView):
                     "status": False,
                     "message": "Rider not found"
                 },
-                status=404
+                status=status.HTTP_404_NOT_FOUND
             )
+
+        assignment = getattr(rider, "current_assignment", None)
+
+        login_logs = rider.login_logout_logs.all().order_by("-time")
+
+        attendance = rider.attendance.order_by("-id").first()
 
         return Response(
             {
                 "status": True,
                 "data": {
-                    "rider_status": rider.online_status,
-                    "last_location": rider.assigned_zone
+                    "current_assignment": {
+                        "order_id": assignment.order_id if assignment else None,
+                        "status": assignment.status if assignment else None,
+                        "pickup": assignment.pickup if assignment else None,
+                        "drop": assignment.drop if assignment else None,
+                        "customer": assignment.customer if assignment else None,
+                        "order_value": (
+                            f"₹{assignment.order_value:,.2f}"
+                            if assignment and assignment.order_value is not None
+                            else None
+                        ),
+                    },
+                    "rider_status": {
+                        "status": rider.online_status
+                    },
+                    "last_location": {
+                        "zone": rider.assigned_zone
+                    },
+                    "login_logout_log": [
+                        {
+                            "time": log.time.strftime("%I:%M %p"),
+                            "status": log.status
+                        }
+                        for log in login_logs
+                    ],
+                    "attendance": {
+                        "month": attendance.month if attendance else None,
+                        "present": attendance.present if attendance else 0,
+                        "absent": attendance.absent if attendance else 0,
+                        "total_days": attendance.total_days if attendance else 0
+                    }
                 },
                 "message": "Rider monitoring details retrieved successfully"
-            }
+            },
+            status=status.HTTP_200_OK
         )
     
 # rider rate filters 
