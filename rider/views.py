@@ -25,7 +25,7 @@ from .serializers import (
 
 class RiderListView(APIView):
 
-    parser_classes =[JSONParser]
+    parser_classes =[MultiPartParser, FormParser, JSONParser]
 
     @extend_schema(
         parameters=[
@@ -171,7 +171,39 @@ class RiderStatsView(APIView):
             }
         )
 
+class RiderQuickStatsView(APIView):
 
+    @extend_schema(
+        responses={200: dict},
+    )
+    def get(self, request, rider_id):
+        try:
+            rider = Rider.objects.get(
+                id=rider_id,
+                is_deleted=False
+            )
+        except Rider.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "message": "Rider not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(
+            {
+                "status": True,
+                "data": {
+                    "total_orders_delivered": f"{rider.total_orders_delivered:,}",
+                    "average_rating": f"{rider.average_rating:.1f}",
+                    "completion_rate": f"{rider.completion_rate:.1f}%",
+                    "total_earnings": f"₹{rider.total_earnings:,.0f}",
+                },
+                "message": "Rider quick stats retrieved successfully"
+            },
+            status=status.HTTP_200_OK
+        )
 class RiderDetailView(APIView):
 
     parser_classes = [MultiPartParser, FormParser]
@@ -553,6 +585,7 @@ class RiderMonitoringView(APIView):
                 "message": "Rider monitoring details retrieved successfully"
             }
         )
+    
 # rider rate filters 
 class RiderRateFilterView(APIView):
 

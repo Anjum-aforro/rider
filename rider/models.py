@@ -219,6 +219,10 @@ class Rider(models.Model):
         default=False
     )
 
+    total_orders_delivered = models.PositiveIntegerField(null=True, blank=True)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+    completion_rate = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    total_earnings = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     # -------------------------
     # Vehicle
     # -------------------------
