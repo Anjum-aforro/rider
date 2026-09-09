@@ -69,7 +69,7 @@ urlpatterns = [
         include(router.urls),
     ),
     path(
-    "riders/<int:rider_id>/monitoring/",
+    "rider/<int:rider_id>/monitoring/",
     RiderMonitoringView.as_view()
     ),
 

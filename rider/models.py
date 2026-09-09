@@ -417,7 +417,6 @@ class RiderRate(models.Model):
         default=1
     )
 
-
     base_payout = models.DecimalField(
         max_digits=10,
         decimal_places=2

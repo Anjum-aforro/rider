@@ -192,18 +192,9 @@ class RiderSerializer(serializers.ModelSerializer):
                     "driving_license_number":
                         "Driving licence number already exists."
                 })
-
-            if Rider.objects.filter(
-                vehicle_number=vehicle_number,
-                is_deleted=False
-            ).exists():
-                raise serializers.ValidationError({
-                    "vehicle_number":
-                        "Vehicle number already exists."
-                })
+            
                 driving_license_number = attrs.get("driving_license_number")
-        vehicle_number = attrs.get("vehicle_number")
-
+                
 
         # Existing values are used for PATCH.
         rider_type = attrs.get(
@@ -215,7 +206,6 @@ class RiderSerializer(serializers.ModelSerializer):
             "payout_method",
             getattr(self.instance, "payout_method", None),
         )
-
         address = attrs.get(
             "address",
             getattr(self.instance, "address", None),
