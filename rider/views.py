@@ -15,7 +15,10 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from .models import Rider, RiderPayout, RiderRate
 from .serializers import (
+    RiderActivityLogSerializer,
+    RiderCODSerializer,
     RiderEarningsPayoutSerializer,
+    RiderIncentiveSerializer,
     RiderSerializer,
     RiderListSerializer,
     LegacyRiderRateSerializer,
@@ -729,6 +732,86 @@ class RiderEarningsPayoutView(APIView):
                 "status": True,
                 "data": serializer.data,
                 "message": "Rider earnings and payout details retrieved successfully"
+            },
+            status=status.HTTP_200_OK
+        )
+
+class RiderCODView(APIView):
+    @extend_schema(responses={200: RiderCODSerializer})
+    def get(self, request, rider_id):
+        try:
+            rider = Rider.objects.get(id=rider_id, is_deleted=False)
+        except Rider.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "data": {},
+                    "message": "Rider not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = RiderCODSerializer(rider)
+
+        return Response(
+            {
+                "status": True,
+                "data": serializer.data,
+                "message": "Rider COD details retrieved successfully"
+            },
+            status=status.HTTP_200_OK
+        )
+
+class RiderIncentiveHistoryView(APIView):
+    @extend_schema(responses={200: RiderIncentiveSerializer})
+    def get(self, request, rider_id):
+        try:
+            rider = Rider.objects.get(id=rider_id, is_deleted=False)
+        except Rider.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "data": [],
+                    "message": "Rider not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        incentives = rider.incentives.all().order_by("-id")
+        serializer = RiderIncentiveSerializer(incentives, many=True)
+
+        return Response(
+            {
+                "status": True,
+                "data": serializer.data,
+                "message": "Incentive history retrieved successfully"
+            },
+            status=status.HTTP_200_OK
+        )
+
+class RiderActivityLogView(APIView):
+    @extend_schema(responses={200: RiderActivityLogSerializer})
+    def get(self, request, rider_id):
+        try:
+            rider = Rider.objects.get(id=rider_id, is_deleted=False)
+        except Rider.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "data": [],
+                    "message": "Rider not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        activities = rider.activity_logs.all().order_by("-date_time")
+        serializer = RiderActivityLogSerializer(activities, many=True)
+
+        return Response(
+            {
+                "status": True,
+                "data": serializer.data,
+                "message": "Rider activity log retrieved successfully"
             },
             status=status.HTTP_200_OK
         )

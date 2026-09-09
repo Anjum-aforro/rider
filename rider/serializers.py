@@ -1,6 +1,6 @@
 import re
 from rest_framework import serializers
-from .models import Rider, RiderRate
+from .models import Rider, RiderActivityLog, RiderIncentive, RiderRate
 from .models import (
   Rider, 
   RiderCurrentAssignment, 
@@ -530,3 +530,70 @@ class RiderEarningsPayoutSerializer(serializers.Serializer):
         }
         for salary in obj.salary_history.all().order_by("-paid_date")
     ]
+
+class RiderCODSerializer(serializers.Serializer):
+    cod_summary = serializers.SerializerMethodField()
+    cash_collected_per_order = serializers.SerializerMethodField()
+    deposit_history = serializers.SerializerMethodField()
+
+    def get_cod_summary(self, obj):
+        return {
+            "total_cash_in_hand": f"₹{obj.cash_in_hand:,.2f}",
+            "last_updated": obj.updated_at.strftime("%I:%M %p"),
+            "total_collected_today": "₹3,750",
+            "total_pending_deposit": f"₹{obj.cash_in_hand:,.2f}"
+        }
+
+    def get_cash_collected_per_order(self, obj):
+        return [
+            {
+                "order_id": f"#{order.order_id}",
+                "collected_amount": f"₹{order.order_value:,.0f}",
+                "status": "Pending"
+            }
+            for order in obj.orders.all().order_by("-order_date")
+        ]
+
+    def get_deposit_history(self, obj):
+        return [
+            {
+                "date": deposit.deposit_date.strftime("%d %B %Y"),
+                "amount": f"₹{deposit.amount_received:,.0f}",
+                "reference": f"DEP{deposit.id:05d}",
+                "status": "Completed"
+            }
+            for deposit in obj.deposits.all().order_by("-deposit_date")
+        ]
+
+class RiderIncentiveSerializer(serializers.ModelSerializer):
+    reward = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RiderIncentive
+        fields = [
+            "target",
+            "requirement",
+            "progress",
+            "remaining",
+            "description",
+            "rating",
+            "reward",
+            "status"
+        ]
+
+    def get_reward(self, obj):
+        return f"₹{obj.reward:,.2f}"
+
+    def get_rating(self, obj):
+        return f"{obj.rating:.2f}" if obj.rating is not None else None
+
+class RiderActivityLogSerializer(serializers.ModelSerializer):
+    date_time = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RiderActivityLog
+        fields = ["activity", "date_time"]
+
+    def get_date_time(self, obj):
+        return obj.date_time.strftime("%d %B %Y, %I:%M %p")

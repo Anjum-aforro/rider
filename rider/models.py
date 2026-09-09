@@ -474,3 +474,38 @@ class RiderSalaryHistory(models.Model):
 
     def __str__(self):
         return f"{self.rider.name} - {self.month}"
+
+class RiderIncentive(models.Model):
+    rider = models.ForeignKey(
+        Rider,
+        on_delete=models.CASCADE,
+        related_name="incentives"
+    )
+    target = models.CharField(max_length=100)
+    requirement = models.CharField(max_length=200)
+    progress = models.CharField(max_length=50, blank=True, null=True)
+    remaining = models.CharField(max_length=100, blank=True, null=True)
+    description = models.CharField(max_length=255)
+    rating = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+    reward = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=30)
+
+    def __str__(self):
+        return f"{self.rider.name} - {self.target}"
+
+class RiderActivityLog(models.Model):
+        rider = models.ForeignKey(
+        Rider,
+        on_delete=models.CASCADE,
+        related_name="activity_logs"
+    )
+        activity = models.CharField(max_length=255)
+        date_time = models.DateTimeField()
+
+        def __str__(self):
+            return f"{self.rider.name} - {self.activity}"
