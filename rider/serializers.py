@@ -1,6 +1,14 @@
 import re
 from rest_framework import serializers
 from .models import Rider, RiderRate
+from .models import (
+  Rider, 
+  RiderCurrentAssignment, 
+  RiderLoginLogoutLog,
+  RiderAttendance,
+  RiderOrder,
+  RiderPayout
+  )
 
 
 
@@ -196,25 +204,6 @@ class RiderSerializer(serializers.ModelSerializer):
                 driving_license_number = attrs.get("driving_license_number")
         vehicle_number = attrs.get("vehicle_number")
 
-        if driving_license_number:
-            if not re.fullmatch(
-                r"[A-Za-z]{2}-[0-9]{14}",
-                driving_license_number
-            ):
-                raise serializers.ValidationError({
-                    "driving_license_number":
-                        "Invalid driving licence number format."
-                })
-
-        if vehicle_number:
-            if not re.fullmatch(
-                r"[A-Z]{2}-[0-9]{2}-[A-Z]{2}-[0-9]{4}",
-                vehicle_number.upper()
-            ):
-                raise serializers.ValidationError({
-                    "vehicle_number":
-                        "Invalid vehicle number format. Example: KA-01-AB-1235."
-                })
 
         # Existing values are used for PATCH.
         rider_type = attrs.get(
@@ -463,7 +452,6 @@ class RiderRateSerializer(serializers.ModelSerializer):
             "status",
         ]
 
-from .models import RiderCurrentAssignment, RiderLoginLogoutLog, RiderAttendance
 
 class RiderCurrentAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -496,3 +484,49 @@ class RiderAttendanceSerializer(serializers.ModelSerializer):
             "absent",
             "total_days"
         ]
+
+class RiderOrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RiderOrder
+        fields = [
+            "order_id",
+            "order_date",
+            "status",
+            "order_value",
+            "delivery_time",
+            "customer_rating"
+        ]
+
+class RiderEarningsPayoutSerializer(serializers.Serializer):
+    payout_history = serializers.SerializerMethodField()
+    salary_details = serializers.SerializerMethodField()
+    salary_history = serializers.SerializerMethodField()
+
+    def get_payout_history(self, obj):
+        return [
+            {
+                "amount_paid": f"₹{payout.amount_paid:,.2f}",
+                "payment_mode": payout.payment_mode,
+                "payout_date": payout.payout_date,
+                "notes": payout.notes
+            }
+            for payout in obj.payouts.all().order_by("-payout_date")
+        ]
+
+    def get_salary_details(self, obj):
+        return {
+            "monthly_salary": f"₹{obj.base_salary:,.0f}" if obj.base_salary else "₹0",
+            "this_month": f"₹{obj.base_salary:,.0f}" if obj.base_salary else "₹0",
+            "next_payout": "31 May 2024"
+        }
+
+    def get_salary_history(self, obj):
+        return [
+        {
+            "month": salary.month,
+            "amount": f"₹{salary.amount:,.0f}",
+            "status": salary.status
+        }
+        for salary in obj.salary_history.all().order_by("-paid_date")
+    ]

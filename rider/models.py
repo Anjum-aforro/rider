@@ -286,6 +286,55 @@ class RiderAttendance(models.Model):
     def __str__(self):
         return f"{self.rider.name} - {self.month}"
 
+class RiderOrder(models.Model):
+
+    class OrderStatus(models.TextChoices):
+        DELIVERED = "Delivered", "Delivered"
+        CANCELLED = "Cancelled", "Cancelled"
+        PENDING = "Pending", "Pending"
+
+    rider = models.ForeignKey(
+        Rider,
+        on_delete=models.CASCADE,
+        related_name="orders"
+    )
+
+    order_id = models.CharField(
+        max_length=100
+    )
+
+    order_date = models.DateTimeField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=OrderStatus.choices
+    )
+
+    order_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    delivery_time = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True
+    )
+
+    customer_rating = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.rider.name} - {self.order_id}"
+
 class RiderDeposit(models.Model):
     rider = models.ForeignKey(
         Rider,
@@ -415,3 +464,13 @@ class RiderRate(models.Model):
 
     def __str__(self):
         return f"{self.distance_from} to {self.distance_to} - ₹{self.per_km_rate}/km"
+
+class RiderSalaryHistory(models.Model):
+    rider = models.ForeignKey(Rider, on_delete=models.CASCADE, related_name="salary_history")
+    month = models.CharField(max_length=20)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, default="Paid")
+    paid_date = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.rider.name} - {self.month}"

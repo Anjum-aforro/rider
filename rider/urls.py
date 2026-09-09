@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    RiderEarningsPayoutView,
     RiderListView,
     RiderDetailView,
     RiderQuickStatsView,
@@ -11,7 +12,8 @@ from .views import (
     RiderRateDetailView,
     RiderRateViewSet,
     RiderMonitoringView,
-    RiderRateFilterView
+    RiderRateFilterView,
+    RiderOrderListView
 )
 
 
@@ -77,4 +79,19 @@ urlpatterns = [
     RiderQuickStatsView.as_view(),
     name="rider-quick-stats"
 ),
+
+   path(
+    "rider/<int:rider_id>/orders/",
+    RiderOrderListView.as_view(),
+    name="rider-orders"
+),
+
+
+   path(
+    "rider/<int:rider_id>/earnings-payouts/",
+    RiderEarningsPayoutView.as_view(),
+    name="rider-earnings-payouts"
+),
+
+
 ]

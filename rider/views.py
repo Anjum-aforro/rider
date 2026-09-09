@@ -13,13 +13,16 @@ from rest_framework.filters import SearchFilter
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
-from .models import Rider, RiderRate
+from .models import Rider, RiderPayout, RiderRate
 from .serializers import (
+    RiderEarningsPayoutSerializer,
     RiderSerializer,
     RiderListSerializer,
     LegacyRiderRateSerializer,
     RiderRateGetSerializer,
-    RiderRateSerializer
+    RiderOrderSerializer,
+    RiderRateSerializer,
+    
 )
 
 
@@ -659,3 +662,73 @@ class RiderRateFilterView(APIView):
             },
             "message": "Rider rate filters retrieved successfully"
         })
+
+class RiderOrderListView(APIView):
+
+    @extend_schema(
+        responses={200: RiderOrderSerializer(many=True)},
+    )
+    def get(self, request, rider_id):
+
+        try:
+            rider = Rider.objects.get(
+                id=rider_id,
+                is_deleted=False
+            )
+        except Rider.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "data": [],
+                    "message": "Rider not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        orders = RiderOrder.objects.filter(
+            rider=rider
+        ).order_by("-order_date")
+
+        serializer = RiderOrderSerializer(
+            orders,
+            many=True
+        )
+
+        return Response(
+            {
+                "status": True,
+                "data": serializer.data,
+                "message": "Rider orders retrieved successfully"
+            },
+            status=status.HTTP_200_OK
+        )
+
+class RiderEarningsPayoutView(APIView):
+
+    @extend_schema(responses={200: RiderEarningsPayoutSerializer})
+    def get(self, request, rider_id):
+        try:
+            rider = Rider.objects.get(
+                id=rider_id,
+                is_deleted=False
+            )
+        except Rider.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "data": {},
+                    "message": "Rider not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = RiderEarningsPayoutSerializer(rider)
+
+        return Response(
+            {
+                "status": True,
+                "data": serializer.data,
+                "message": "Rider earnings and payout details retrieved successfully"
+            },
+            status=status.HTTP_200_OK
+        )
