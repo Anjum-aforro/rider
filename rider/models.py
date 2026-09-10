@@ -405,10 +405,14 @@ class RiderRate(models.Model):
         SALARY = "Salary", "Salary"
         PER_ORDER = "Per-order", "Per-order"
 
+    class RateStatus(models.TextChoices):
+        ACTIVE = "Active", "Active"
+        INACTIVE = "Inactive", "Inactive"
+
     distance_from = models.DecimalField(
-    max_digits=10,
-    decimal_places=2,
-    default=0
+        max_digits=10,
+        decimal_places=2,
+        default=0
     )
 
     distance_to = models.DecimalField(
@@ -446,7 +450,8 @@ class RiderRate(models.Model):
 
     status = models.CharField(
         max_length=20,
-        default="Active"
+        choices=RateStatus.choices,
+        default=RateStatus.ACTIVE
     )
 
     is_deleted = models.BooleanField(

@@ -638,6 +638,13 @@ class RiderRateFilterView(APIView):
 
         rates = RiderRate.objects.filter(is_deleted=False)
 
+        distances = list(
+            rates.values_list("distance_to", flat=True).distinct()
+            )
+
+        distance_range = ["All Distances"] + [f"Up to {distance} km"
+                                              for distance in sorted(distances)]
+         
         rider_types = list(
             rates.values_list("rider_type", flat=True).distinct()
         )
@@ -650,14 +657,13 @@ class RiderRateFilterView(APIView):
             rates.values_list("vehicle", flat=True).distinct()
         )
 
-        statuses = list(
-            rates.values_list("status", flat=True).distinct()
-        )
+        statuses = [choice[0] for choice in RiderRate.RateStatus.choices]
 
         return Response({
             "status": True,
             "data": {
-                
+
+                "distance_range": distance_range,
                 "rider_types": ["All Rider Types"] + rider_types,
                 "zones": ["All Zones"] + zones,
                 "vehicles": ["All Vehicles"] + vehicles,
